@@ -36,15 +36,25 @@ int main() {
     // TODO 07 выведите в консоль каждый элемент из динамического массива
     for (int i = 0; i < values.size(); ++i) {
         double x = values[i];
+        std::cout<< x << " ";
     }
 
     // TODO 08 считывайте числа из консоли (и добавляйте их в вектор) до тех пор пока не будет введен ноль, после чего просуммируйте считанные числа и выведите сумму
-    // while () {
-    //     ...
-    //     if (...) {
-    //         break;
-    //     }
-    // }
+    int x;
+    int sum = 0;
+    std::vector<int> numbers;
+    std::cin >> x;
+     while (x!=0) {
+         numbers.push_back(x);
+         std::cin>> x;
+         if (x == 0) {
+             break;
+         }
+     }
+     for (int i =0; i<numbers.size(); ++i) {
+         sum+=numbers[i];
+     }
+     std::cout<< sum << std::endl;
 
     return 0;
 }

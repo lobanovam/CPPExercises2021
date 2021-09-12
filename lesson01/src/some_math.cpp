@@ -14,6 +14,7 @@ int fibbonachiRecursive(int n) {
 int fibbonachiFast(int n) {
     // TODO 04 реализуйте быструю функцию Фибоначчи с использованием std::vector
     std::vector<int> fib;
+
     return(0);
 }
 
