@@ -55,7 +55,7 @@ TEST(lesson01, findX3) {
 
 TEST(lesson01, findX4) {
     double x = solveLinearAXB(0.0, 0.0);
-    GTEST_ASSERT_EQ(x, -std::numeric_limits<double>::max());
+    GTEST_ASSERT_EQ(x, std::numeric_limits<double>::max());
 }
 
 TEST(lesson01, findX5) {
