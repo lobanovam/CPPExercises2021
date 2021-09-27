@@ -26,25 +26,39 @@ void task1() {
     std::string filename = resultsDir + "01_blue_unicorn.jpg"; // удобно в начале файла писать число, чтобы файлы были в том порядке в котором мы их создали
     cv::imwrite(filename, blueUnicorn);
 
-    cv::Mat invertedUnicorn = invertImageColors(imgUnicorn); // TODO реализуйте функцию которая каждый цвет картинки инвертирует
+    cv::Mat invertedUnicorn = invertImageColors(imgUnicorn.clone());
+    filename = resultsDir + "02_inv_unicorn.jpg";
+    cv::imwrite(filename, invertedUnicorn);
+    // TODO реализуйте функцию которая каждый цвет картинки инвертирует
     // TODO сохраните резльутат в ту же папку, но файл назовите "02_inv_unicorn.jpg"
 
-//    cv::Mat castle; // TODO считайте с диска картинку с замком - castle.png
-//    cv::Mat unicornInCastle = addBackgroundInsteadOfBlackPixels(imgUnicorn, castle); // TODO реализуйте функцию которая все черные пиксели картинки-объекта заменяет на пиксели с картинки-фона
+    cv::Mat castle = cv::imread("lesson03/data/castle.png");// TODO считайте с диска картинку с замком - castle.png
+    rassert(!castle.empty(), "castle is empty");
+    cv::Mat unicornInCastle = addBackgroundInsteadOfBlackPixels(imgUnicorn.clone(), castle.clone());// TODO реализуйте функцию которая все черные пиксели картинки-объекта заменяет на пиксели с картинки-фона
+    filename = resultsDir + "03_unicorn_castle.jpg";
+    cv::imwrite(filename, unicornInCastle);
     // TODO сохраните результат в ту же папку, назовите "03_unicorn_castle.jpg"
 
-//    cv::Mat largeCastle; // TODO считайте с диска картинку с большим замком - castle_large.png
-//    cv::Mat unicornInLargeCastle = addBackgroundInsteadOfBlackPixelsLargeBackground(imgUnicorn, largeCastle); // TODO реализуйте функцию так, чтобы нарисовался объект ровно по центру на данном фоне, при этом черные пиксели объекта не должны быть нарисованы
+    cv::Mat largeCastle = cv::imread("lesson03/data/castle_large.jpg"); // TODO считайте с диска картинку с большим замком - castle_large.png
+
+    cv::Mat unicornInLargeCastle = addBackgroundInsteadOfBlackPixelsLargeBackground(imgUnicorn, largeCastle); // TODO реализуйте функцию так, чтобы нарисовался объект ровно по центру на данном фоне, при этом черные пиксели объекта не должны быть нарисованы
+    filename = resultsDir + "04_unicorn_large_castle.jpg";
+    cv::imwrite(filename, unicornInLargeCastle);
     // TODO сохраните результат - "04_unicorn_large_castle.jpg"
 
     // TODO сделайте то же самое, но теперь пусть единорог рисуется N раз (случайно выбранная переменная от 0 до 100)
+    int n = rand()%101;
+    cv::Mat largeCastle1 = cv::imread("lesson03/data/castle_large.jpg");
+    cv::Mat lotsOfUnicorns = multiplyUnicorns(imgUnicorn.clone(), largeCastle1.clone(), n);
+    filename = resultsDir + "05_unicorns_take.jpg";
+    cv::imwrite(filename, lotsOfUnicorns);
     // функцию вам придется объявить самостоятельно, включая:
     // 1) придумывание ее имени
     // 2) добавление декларации в helper_functions.h (три аргумента - объект, фон, число рисований объекта)
     // 3) добавление реализации в helper_functions.cpp (список аргументов должен совпадать со списком в декларации)
     // 4) как генерировать случайные числа - найдите самостоятельно через гугл, например "c++ how to random int"
     // 5) при этом каждый единорог рисуется по случайным координатам
-    // 6) результат сохраните - "05_unicorns_otake.jpg"
+    // 6) результат сохраните - "05_unicorns_take.jpg"
 
     // TODO растяните картинку единорога так, чтобы она заполнила полностью большую картинку с замком "06_unicorn_upscale.jpg"
 }
