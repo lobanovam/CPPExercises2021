@@ -1,6 +1,7 @@
 #include "helper_functions.h"
 
 #include <libutils/rasserts.h>
+#include <iostream>
 
 
 cv::Mat makeAllBlackPixelsBlue(cv::Mat image) {
@@ -117,5 +118,24 @@ cv::Mat multiplyUnicorns(cv::Mat object, cv::Mat largeBackground, int n) {
 
     }
     return largeBackground;
+}
+ cv::Mat randomColors(cv::Mat object) {
 
+        for (int i = 0; i < object.rows; i++) {
+            for (int j = 0; j < object.cols; j++) {
+                cv::Vec3b color = object.at<cv::Vec3b>(i, j);
+                if (color[0] < 1 && color[1] < 1 && color[2] < 1) {
+                    object.at<cv::Vec3b>(i, j) = cv::Vec3b(rand() % 256, rand() % 256, rand() % 256);
+                }
+
+            }
+        }
+        return object;
+
+}
+cv::Mat NewFrame(std::vector<int>x, std::vector<int>y, cv:: Mat frame) {
+       for (int i = 0; i < x.size(); i++) {
+              frame.at<cv::Vec3b>(x[i], y[i]) = cv::Vec3b(0, 0, 255);
+       }
+       return frame;
 }

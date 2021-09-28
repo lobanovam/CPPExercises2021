@@ -11,3 +11,7 @@ cv::Mat addBackgroundInsteadOfBlackPixels(cv::Mat object, cv::Mat background);
 cv::Mat addBackgroundInsteadOfBlackPixelsLargeBackground(cv::Mat object, cv::Mat largeBackground);
 
 cv::Mat multiplyUnicorns(cv::Mat object, cv::Mat largeBackground, int n);
+
+cv::Mat randomColors(cv::Mat object);
+
+cv::Mat NewFrame(std::vector<int>x, std::vector<int>y, cv:: Mat frame);

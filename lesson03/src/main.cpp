@@ -68,15 +68,18 @@ void task2() {
     rassert(!imgUnicorn.empty(), 3428374817241);
 
     // cv::waitKey - функция некоторое время ждет не будет ли нажата кнопка клавиатуры, если да - то возвращает ее код
-    int updateDelay = 10; // указываем сколько времени ждать нажатия кнопки клавиатуры - в миллисекундах
-    while (cv::waitKey(updateDelay) != 32) {
+   // int updateDelay = 10; // указываем сколько времени ждать нажатия кнопки клавиатуры - в миллисекундах
+   // while (cv::waitKey(updateDelay) != 32) {
         // поэтому если мы выполняемся до тех пор пока эта функция не вернет код 32 (а это код кнопки "пробел"), то достаточно будет нажать на пробел чтобы закончить работу программы
 
         // кроме сохранения картинок на диск (что часто гораздо удобнее конечно, т.к. между ними легко переключаться)
         // иногда удобно рисовать картинку в окне:
-        cv::imshow("lesson03 window", imgUnicorn);
+
         // TODO сделайте функцию которая будет все черные пиксели (фон) заменять на случайный цвет (аккуратно, будет хаотично и ярко мигать, не делайте если вам это противопоказано)
-    }
+        //cv::Mat task2 = randomColors(imgUnicorn.clone());
+        //cv::imshow("lesson03 window", task2);
+
+
 }
 
 struct MyVideoContent {
@@ -84,20 +87,28 @@ struct MyVideoContent {
     int lastClickX;
     int lastClickY;
 };
-
+bool b;
 void onMouseClick(int event, int x, int y, int flags, void *pointerToMyVideoContent) {
     MyVideoContent &content = *((MyVideoContent*) pointerToMyVideoContent);
     // не обращайте внимание на предыдущую строку, главное что важно заметить:
     // content.frame - доступ к тому кадру что был только что отображен на экране
     // content.lastClickX - переменная которая вам тоже наверняка пригодится
     // вы можете добавить своих переменных в структурку выше (считайте что это описание объекта из ООП, т.к. почти полноценный класс)
+    b = false;
+
+
 
     if (event == cv::EVENT_LBUTTONDOWN) { // если нажата левая кнопка мыши
         std::cout << "Left click at x=" << x << ", y=" << y << std::endl;
+        content.lastClickX = x;
+        content.lastClickY = y;
+        b = true;
+
     }
 }
 
 void task3() {
+
     // давайте теперь вместо картинок подключим видеопоток с веб камеры:
     cv::VideoCapture video(0);
     // если у вас нет вебкамеры - подключите ваш телефон к компьютеру как вебкамеру - это должно быть не сложно (загуглите)
@@ -111,27 +122,36 @@ void task3() {
     rassert(video.isOpened(), 3423948392481); // проверяем что видео получилось открыть
 
     MyVideoContent content; // здесь мы будем хранить всякие полезности - например последний видео кадр, координаты последнего клика и т.п.
-    // content.frame - доступ к тому кадру что был только что отображен на экране
+     //content.frame - доступ к тому кадру что был только что отображен на экране
     // content.lastClickX - переменная которая вам тоже наверняка пригодится
     // вы можете добавить своих переменных в структурку выше (считайте что это описание объекта из ООП, т.к. почти полноценный класс)
     // просто перейдите к ее объявлению - удерживая Ctrl сделайте клик левой кнопкой мыши по MyVideoContent - и вас телепортирует к ее определению
 
-    while (video.isOpened()) { // пока видео не закрылось - бежим по нему
+    std::vector<int> clickX;
+    std::vector<int> clickY;
+
+    while (cv::waitKey(10) != 32 && cv::waitKey(10) != 27) {
+
+        // пока видео не закрылось - бежим по нему
+
         bool isSuccess = video.read(content.frame); // считываем из видео очередной кадр
+        cv::setMouseCallback("video", onMouseClick, &content); // делаем так чтобы функция выше (onMouseClick) получала оповещение при каждом клике мышкой
         rassert(isSuccess, 348792347819); // проверяем что считывание прошло успешно
         rassert(!content.frame.empty(), 3452314124643); // проверяем что кадр не пустой
-
-        cv::imshow("video", content.frame); // покаызваем очередной кадр в окошке
-        cv::setMouseCallback("video", onMouseClick, &content); // делаем так чтобы функция выше (onMouseClick) получала оповещение при каждом клике мышкой
-
-        int key = cv::waitKey(10);
         // TODO добавьте завершение программы в случае если нажат пробел
         // TODO добавьте завершение программы в случае если нажат Escape (придумайте как нагуглить)
-
         // TODO сохраняйте в вектор (std::vector<int>) координаты всех кликов мышки
+        if(b) {
+            clickX.push_back(content.lastClickX);
+            clickY.push_back(content.lastClickY);
+        }
+        std::cout<<clickX.size()<<std::endl;
+        std::cout<<clickY.size()<<std::endl;
         // TODO и перед отрисовкой очередного кадра - заполняйте все уже прокликанные пиксели красным цветом
-
         // TODO сделайте по правому клику мышки переключение в режим "цвета каждого кадра инвертированы" (можете просто воспользоваться функцией invertImageColors)
+        cv:: Mat nframe = NewFrame(clickX, clickY, content.frame);
+        cv::imshow("video", nframe);
+
     }
 }
 
@@ -149,9 +169,9 @@ void task4() {
 
 int main() {
     try {
-        task1();
-//        task2();
-//        task3();
+    //    task1();
+    //task2();
+        task3();
 //        task4();
         return 0;
     } catch (const std::exception &e) {
