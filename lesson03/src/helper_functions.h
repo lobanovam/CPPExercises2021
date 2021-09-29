@@ -15,3 +15,5 @@ cv::Mat multiplyUnicorns(cv::Mat object, cv::Mat largeBackground, int n);
 cv::Mat randomColors(cv::Mat object);
 
 cv::Mat NewFrame(std::vector<int>x, std::vector<int>y, cv:: Mat frame);
+
+cv::Mat rFrame(std::vector<int>x, std::vector<int>y, cv:: Mat frame);

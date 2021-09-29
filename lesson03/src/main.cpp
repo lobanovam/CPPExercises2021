@@ -68,16 +68,17 @@ void task2() {
     rassert(!imgUnicorn.empty(), 3428374817241);
 
     // cv::waitKey - функция некоторое время ждет не будет ли нажата кнопка клавиатуры, если да - то возвращает ее код
-   // int updateDelay = 10; // указываем сколько времени ждать нажатия кнопки клавиатуры - в миллисекундах
-   // while (cv::waitKey(updateDelay) != 32) {
+    int updateDelay = 10; // указываем сколько времени ждать нажатия кнопки клавиатуры - в миллисекундах
+    while (cv::waitKey(updateDelay) != 32) {
         // поэтому если мы выполняемся до тех пор пока эта функция не вернет код 32 (а это код кнопки "пробел"), то достаточно будет нажать на пробел чтобы закончить работу программы
 
         // кроме сохранения картинок на диск (что часто гораздо удобнее конечно, т.к. между ними легко переключаться)
         // иногда удобно рисовать картинку в окне:
 
         // TODO сделайте функцию которая будет все черные пиксели (фон) заменять на случайный цвет (аккуратно, будет хаотично и ярко мигать, не делайте если вам это противопоказано)
-        //cv::Mat task2 = randomColors(imgUnicorn.clone());
-        //cv::imshow("lesson03 window", task2);
+        cv::Mat task2 = randomColors(imgUnicorn.clone());
+        cv::imshow("lesson03 window", task2);
+    }
 
 
 }
@@ -86,18 +87,15 @@ struct MyVideoContent {
     cv::Mat frame;
     int lastClickX;
     int lastClickY;
+    int lastClickXR;
+    int lastClickYR;
 };
 bool b;
+bool c;
 void onMouseClick(int event, int x, int y, int flags, void *pointerToMyVideoContent) {
     MyVideoContent &content = *((MyVideoContent*) pointerToMyVideoContent);
-    // не обращайте внимание на предыдущую строку, главное что важно заметить:
-    // content.frame - доступ к тому кадру что был только что отображен на экране
-    // content.lastClickX - переменная которая вам тоже наверняка пригодится
-    // вы можете добавить своих переменных в структурку выше (считайте что это описание объекта из ООП, т.к. почти полноценный класс)
     b = false;
-
-
-
+    c = false;
     if (event == cv::EVENT_LBUTTONDOWN) { // если нажата левая кнопка мыши
         std::cout << "Left click at x=" << x << ", y=" << y << std::endl;
         content.lastClickX = x;
@@ -105,35 +103,25 @@ void onMouseClick(int event, int x, int y, int flags, void *pointerToMyVideoCont
         b = true;
 
     }
+    if (event == cv::EVENT_RBUTTONDOWN) {
+        std::cout << "Left rClick at x=" << x << ", y=" << y << std::endl;
+        content.lastClickXR = x;
+        content.lastClickYR = y;
+        c = true;
+    }
 }
 
 void task3() {
-
-    // давайте теперь вместо картинок подключим видеопоток с веб камеры:
     cv::VideoCapture video(0);
-    // если у вас нет вебкамеры - подключите ваш телефон к компьютеру как вебкамеру - это должно быть не сложно (загуглите)
-    // альтернативно если у вас совсем нет вебки - то попробуйте запустить с видеофайла, но у меня не заработало - из-за "there is API version mismath: plugin API level (0) != OpenCV API level (1)"
-    // скачайте какое-нибудь видео с https://www.videezy.com/free-video/chroma-key
-    // например https://www.videezy.com/elements-and-effects/5594-interactive-hand-gesture-sliding-finger-studio-green-screen
-    // если вы увидите кучу ошибок в консоли навроде "DynamicLib::libraryLoad load opencv_videoio_ffmpeg451_64.dll => FAILED", то скопируйте файл C:\...\opencv\build\x64\vc14\bin\opencv_videoio_ffmpeg451_64.dll в папку с проектом
-    // и укажите путь к этому видео тут:
-//    cv::VideoCapture video("lesson03/data/Spin_1.mp4");
-
     rassert(video.isOpened(), 3423948392481); // проверяем что видео получилось открыть
-
-    MyVideoContent content; // здесь мы будем хранить всякие полезности - например последний видео кадр, координаты последнего клика и т.п.
-     //content.frame - доступ к тому кадру что был только что отображен на экране
-    // content.lastClickX - переменная которая вам тоже наверняка пригодится
-    // вы можете добавить своих переменных в структурку выше (считайте что это описание объекта из ООП, т.к. почти полноценный класс)
-    // просто перейдите к ее объявлению - удерживая Ctrl сделайте клик левой кнопкой мыши по MyVideoContent - и вас телепортирует к ее определению
+    MyVideoContent content;
 
     std::vector<int> clickX;
     std::vector<int> clickY;
+    std::vector<int> clickXR;
+    std::vector<int> clickYR;
 
     while (cv::waitKey(10) != 32 && cv::waitKey(10) != 27) {
-
-        // пока видео не закрылось - бежим по нему
-
         bool isSuccess = video.read(content.frame); // считываем из видео очередной кадр
         cv::setMouseCallback("video", onMouseClick, &content); // делаем так чтобы функция выше (onMouseClick) получала оповещение при каждом клике мышкой
         rassert(isSuccess, 348792347819); // проверяем что считывание прошло успешно
@@ -145,17 +133,25 @@ void task3() {
             clickX.push_back(content.lastClickX);
             clickY.push_back(content.lastClickY);
         }
-        std::cout<<clickX.size()<<std::endl;
-        std::cout<<clickY.size()<<std::endl;
+        if(c) {
+            clickXR.push_back(content.lastClickXR);
+            clickYR.push_back(content.lastClickYR);
+        }
+        //std::cout<<clickX.size()<<std::endl;
+        //std::cout<<clickY.size()<<std::endl;
         // TODO и перед отрисовкой очередного кадра - заполняйте все уже прокликанные пиксели красным цветом
         // TODO сделайте по правому клику мышки переключение в режим "цвета каждого кадра инвертированы" (можете просто воспользоваться функцией invertImageColors)
         cv:: Mat nframe = NewFrame(clickX, clickY, content.frame);
+        cv:: Mat rframe = rFrame(clickXR, clickYR, content.frame);
         cv::imshow("video", nframe);
+        cv::imshow("video", rframe);
 
     }
 }
 
 void task4() {
+
+
     // TODO на базе кода из task3 (скопируйте просто его сюда) сделайте следующее:
     // при клике мышки - определяется цвет пикселя в который пользователь кликнул, теперь этот цвет считается прозрачным (как было с черным цветом у единорога)
     // и теперь перед отрисовкой очередного кадра надо подложить вместо прозрачных пикселей - пиксель из отмасштабированной картинки замка (castle_large.jpg)
@@ -169,10 +165,10 @@ void task4() {
 
 int main() {
     try {
-    //    task1();
+    //task1();
     //task2();
-        task3();
-//        task4();
+    task3();
+    //task4();
         return 0;
     } catch (const std::exception &e) {
         std::cout << "Exception! " << e.what() << std::endl;

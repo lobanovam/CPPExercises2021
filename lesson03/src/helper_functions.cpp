@@ -135,7 +135,14 @@ cv::Mat multiplyUnicorns(cv::Mat object, cv::Mat largeBackground, int n) {
 }
 cv::Mat NewFrame(std::vector<int>x, std::vector<int>y, cv:: Mat frame) {
        for (int i = 0; i < x.size(); i++) {
-              frame.at<cv::Vec3b>(x[i], y[i]) = cv::Vec3b(0, 0, 255);
+              frame.at<cv::Vec3b>(y[i], x[i]) = cv::Vec3b(0, 0, 255);
        }
        return frame;
+}
+cv:: Mat rFrame(std::vector<int>x, std::vector<int>y, cv:: Mat frame){
+    for (int i = 0; i < x.size(); i++) {
+        cv::Vec3b color = frame.at<cv::Vec3b>(y[i], x[i]);
+        frame.at<cv::Vec3b>(y[i], x[i]) = cv::Vec3b(255 - color[0], 255 - color[1], 255 - color[2]);
+    }
+    return frame;
 }
