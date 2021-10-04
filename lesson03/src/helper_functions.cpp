@@ -146,3 +146,21 @@ cv:: Mat rFrame(std::vector<int>x, std::vector<int>y, cv:: Mat frame){
     }
     return frame;
 }
+
+cv::Mat stretch(cv::Mat image, cv::Mat object) {
+    for (int i = 0; i < image.rows; i++) {
+        for (int j = 0; j < image.cols; j++) {
+            cv::Vec3b color = object.at<cv::Vec3b>((i*object.rows)/image.rows, (j*object.cols)/image.cols);
+            image.at<cv::Vec3b>(i, j) = cv::Vec3b(color[0],color[1],color[2]);
+        }
+    }
+    return image;
+}
+
+cv::Mat transparent(std::vector<int>x, std::vector<int>y, cv::Mat frame, cv::Mat castle){
+    for (int i = 0; i < x.size(); i++) {
+        cv::Vec3b color = castle.at<cv::Vec3b>(y[i],x[i]);
+        frame.at<cv::Vec3b>(y[i], x[i]) = cv::Vec3b(color[0],color[1],color[2] );
+    }
+    return frame;
+}

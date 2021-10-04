@@ -59,8 +59,15 @@ void task1() {
     // 4) как генерировать случайные числа - найдите самостоятельно через гугл, например "c++ how to random int"
     // 5) при этом каждый единорог рисуется по случайным координатам
     // 6) результат сохраните - "05_unicorns_take.jpg"
+     width = largeCastle.cols;
+     height = largeCastle.rows;
+     cv::Scalar color(0,0,0);
+     cv::Mat myNewImage(height, width, CV_8UC3, color);
+     cv::Mat stretched = stretch(myNewImage, imgUnicorn.clone());
+     filename = resultsDir + "06_unicorns_upscale.jpg";
+     cv::imwrite(filename, stretched);
 
-    // TODO растяните картинку единорога так, чтобы она заполнила полностью большую картинку с замком "06_unicorn_upscale.jpg"
+     // TODO растяните картинку единорога так, чтобы она заполнила полностью большую картинку с замком "06_unicorn_upscale.jpg"
 }
 
 void task2() {
@@ -97,14 +104,14 @@ void onMouseClick(int event, int x, int y, int flags, void *pointerToMyVideoCont
     b = false;
     c = false;
     if (event == cv::EVENT_LBUTTONDOWN) { // если нажата левая кнопка мыши
-        std::cout << "Left click at x=" << x << ", y=" << y << std::endl;
+        //std::cout << "Left click at x=" << x << ", y=" << y << std::endl;
         content.lastClickX = x;
         content.lastClickY = y;
         b = true;
 
     }
     if (event == cv::EVENT_RBUTTONDOWN) {
-        std::cout << "Left rClick at x=" << x << ", y=" << y << std::endl;
+        //std::cout << "Left rClick at x=" << x << ", y=" << y << std::endl;
         content.lastClickXR = x;
         content.lastClickYR = y;
         c = true;
@@ -150,7 +157,38 @@ void task3() {
 }
 
 void task4() {
+    cv::VideoCapture video(0);
+    rassert(video.isOpened(), 3423948392481); // проверяем что видео получилось открыть
+    MyVideoContent content;
 
+    std::vector<int> clickX;
+    std::vector<int> clickY;
+
+    cv::Mat largeCastle = cv::imread("lesson03/data/castle_large.jpg");
+    rassert(!largeCastle.empty(), 3428374817241);
+    int width = content.frame.cols;
+    int height = content.frame.rows;
+    cv::Scalar color(0,0,0);
+    cv::Mat myNewImage(height, width, CV_8UC3, color);
+    cv::Mat scaledCastle = stretch(myNewImage,largeCastle.clone());
+    //std::string resultsDir = "lesson03/resultsData/";
+    //std::string filename = resultsDir + "07_castle.jpg";
+   // cv::imwrite(filename, scaledCastle);
+
+    while (cv::waitKey(10) != 32 && cv::waitKey(10) != 27) {
+        bool isSuccess = video.read(content.frame); // считываем из видео очередной кадр
+        cv::setMouseCallback("video", onMouseClick, &content); // делаем так чтобы функция выше (onMouseClick) получала оповещение при каждом клике мышкой
+        rassert(isSuccess, 348792347819); // проверяем что считывание прошло успешно
+        rassert(!content.frame.empty(), 3452314124643); // проверяем что кадр не пустой
+        if(b) {
+            clickX.push_back(content.lastClickX);
+            clickY.push_back(content.lastClickY);
+        }
+
+        cv:: Mat nframe = transparent(clickX, clickY, content.frame, scaledCastle);
+        cv::imshow("video", nframe);
+
+    }
 
     // TODO на базе кода из task3 (скопируйте просто его сюда) сделайте следующее:
     // при клике мышки - определяется цвет пикселя в который пользователь кликнул, теперь этот цвет считается прозрачным (как было с черным цветом у единорога)
@@ -167,8 +205,8 @@ int main() {
     try {
     //task1();
     //task2();
-    task3();
-    //task4();
+    //task3();
+    task4();
         return 0;
     } catch (const std::exception &e) {
         std::cout << "Exception! " << e.what() << std::endl;

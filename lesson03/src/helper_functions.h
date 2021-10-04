@@ -17,3 +17,7 @@ cv::Mat randomColors(cv::Mat object);
 cv::Mat NewFrame(std::vector<int>x, std::vector<int>y, cv:: Mat frame);
 
 cv::Mat rFrame(std::vector<int>x, std::vector<int>y, cv:: Mat frame);
+
+cv::Mat stretch(cv::Mat image, cv::Mat object);
+
+cv::Mat transparent(std::vector<int>x, std::vector<int>y, cv::Mat frame, cv::Mat castle);
