@@ -8,6 +8,13 @@
 
 void testBGRToGray() {
     std::string name = "valve";
+
+    std::string resultsDir = "lesson05/resultsData/";
+    if (!std::filesystem::exists(resultsDir)) { // если папка еще не создана
+        std::filesystem::create_directory(resultsDir); // то создаем ее
+    }
+
+
     cv::Mat img = cv::imread("lesson05/data/" + name + ".jpg");
     rassert(!img.empty(), 23981920813);
 
