@@ -8,13 +8,6 @@
 
 void testBGRToGray() {
     std::string name = "valve";
-
-    std::string resultsDir = "lesson05/resultsData/";
-    if (!std::filesystem::exists(resultsDir)) { // если папка еще не создана
-        std::filesystem::create_directory(resultsDir); // то создаем ее
-    }
-
-
     cv::Mat img = cv::imread("lesson05/data/" + name + ".jpg");
     rassert(!img.empty(), 23981920813);
 
@@ -33,6 +26,7 @@ void testSobel(const std::string &name) {
     // т.е. посчитайте производную по x и по y (в каждом пикселе хранятся две эти производные)
     cv::Mat dxy = sobelDXY(img); // обратите внимание что внутри ждут черно-белую картинку, значит нашу картинку надо перед Собелем преобразовать
 
+    rassert(!dxy.empty(), 23981920813);
     cv::Mat dx = convertDXYToDX(dxy); // TODO реализуйте функцию которая вытаскивает силу производной по x (ее абсолютное значение)
     // TODO и удостоверьтесь что результат выглядит так как вы ожидаете, если нет - спросите меня
     cv::imwrite("lesson05/resultsData/" + name + "_dx.jpg", dx);

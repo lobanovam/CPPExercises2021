@@ -27,6 +27,7 @@ cv::Mat convertBGRToGray(cv::Mat img) {
             float grayIntensity = 0.0f;
             grayIntensity = (0.299*red + 0.587*green+ 0.114*blue);
             grayscaleImg.at<float>(j, i) = grayIntensity;
+
         }
     }
 
@@ -49,7 +50,9 @@ cv::Mat sobelDXY(cv::Mat img) {
     // производную неприятно брать по трем каналам (по трем BGR-цветам),
     // поэтому переданная картинка должна быть черно-белой (оттенки серого)
     // удостоверимся в этом (32-битное вещественное число: 32F + всего 1 канал (channel): C1):
+    cv::Mat gray = convertBGRToGray(img);
     rassert(img.type() == CV_32FC1, 23781792319049);
+
 
     // реализуйте оператор Собеля - заполните dxy
     // https://ru.wikipedia.org/wiki/%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%BE%D1%80_%D0%A1%D0%BE%D0%B1%D0%B5%D0%BB%D1%8F
@@ -77,9 +80,9 @@ cv::Mat sobelDXY(cv::Mat img) {
             // затем пробегаем по окрестности 3x3 вокруг нашего центрального пикселя (j,i)
             for (int dj = -1; dj <= 1; ++dj) {
                 for (int di = -1; di <= 1; ++di) {
-                    float intensity = img.at<float>(j + dj, i + di); // берем соседний пиксель из окрестности
+                    float intensity = gray.at<float>(j + dj, i + di); // берем соседний пиксель из окрестности
                     dxSum += dxSobelKoef[1 + dj][1 + di] * intensity; // добавляем его яркость в производную с учетом веса из ядра Собеля
-                    dySum +=dySobelKoef[1+dj][1+di] * intensity;
+                    dySum += dySobelKoef[1+dj][1+di] * intensity;
                 }
             }
 
@@ -108,9 +111,24 @@ cv::Mat convertDXYToDX(cv::Mat img) {
     return dxImg;
 }
 
+
 cv::Mat convertDXYToDY(cv::Mat img) {
     // TODO
-    cv::Mat dyImg;
+    rassert(img.type() == CV_32FC2,
+            238129037129092); // сверяем что в картинке два канала и в каждом - вещественное число
+    int width = img.cols;
+    int height = img.rows;
+    cv::Mat dyImg(height, width, CV_32FC1); // создаем одноканальную картинку состоящую из 32-битных вещественных чисел
+    for (int j = 0; j < height; ++j) {
+        for (int i = 0; i < width; ++i) {
+            cv::Vec2f dxy = img.at<cv::Vec2f>(j, i);
+
+            float y = std::abs(dxy[0]); // взяли абсолютное значение производной по оси y
+
+            dyImg.at<float>(j, i) = y;
+        }
+    }
+
     return dyImg;
 }
 
