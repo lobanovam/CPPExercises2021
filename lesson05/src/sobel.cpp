@@ -133,8 +133,22 @@ cv::Mat convertDXYToDY(cv::Mat img) {
 }
 
 cv::Mat convertDXYToGradientLength(cv::Mat img) {
+    int width = img.cols;
+    int height = img.rows;
+    cv::Mat dxyImg(height, width, CV_32FC1); // создаем одноканальную картинку состоящую из 32-битных вещественных чисел
+    for (int j = 0; j < height; ++j) {
+        for (int i = 0; i < width; ++i) {
+            cv::Vec2f dxy = img.at<cv::Vec2f>(j, i);
+
+            float y = std::abs(dxy[0]); // взяли абсолютное значение производной по оси y
+            float x = std::abs(dxy[1]);
+
+            dxyImg.at<float>(j, i) = sqrt(x*x+y*y);
+        }
+    }
+
+    return dxyImg;
     // TODO реализуйте функцию которая считает силу градиента в каждом пикселе
     // точнее - его длину, ведь градиент - это вектор (двухмерный, ведь у него две компоненты), а у вектора всегда есть длина - sqrt(x^2+y^2)
     // TODO и удостоверьтесь что результат выглядит так как вы ожидаете, если нет - спросите меня
-    return img;
 }
