@@ -51,7 +51,7 @@ cv::Mat sobelDXY(cv::Mat img) {
     // поэтому переданная картинка должна быть черно-белой (оттенки серого)
     // удостоверимся в этом (32-битное вещественное число: 32F + всего 1 канал (channel): C1):
     cv::Mat gray = convertBGRToGray(img);
-    rassert(img.type() == CV_32FC1, 23781792319049);
+    rassert(gray.type() == CV_32FC1, "fignya");
 
 
     // реализуйте оператор Собеля - заполните dxy
@@ -103,7 +103,7 @@ cv::Mat convertDXYToDX(cv::Mat img) {
         for (int i = 0; i < width; ++i) {
             cv::Vec2f dxy = img.at<cv::Vec2f>(j, i);
 
-            float x = std::abs(dxy[0]); // взяли абсолютное значение производной по оси x
+            float x = std::abs(dxy[1]); // взяли абсолютное значение производной по оси x
 
             dxImg.at<float>(j, i) = x;
         }
