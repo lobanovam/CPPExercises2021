@@ -21,8 +21,8 @@ void test(std::string name) {
     rassert(!grad_y.empty(), 234892748239070018);
 
     // сохраняем оба результата в картинку на диск, чтобы проверить что результат выглядит разумно
-    cv::imwrite("lesson07/resultsData/" + name + "_1_sobel_x.png", grad_x);
-    cv::imwrite("lesson07/resultsData/" + name + "_2_sobel_y.png", grad_y);
+    //cv::imwrite("lesson07/resultsData/" + name + "_1_sobel_x.png", grad_x);
+    //cv::imwrite("lesson07/resultsData/" + name + "_2_sobel_y.png", grad_y);
 
     // замечаем что мы ведь забыли взять абсолютное значение градиента!
     // TODO посмотрите на картинки на диске, какая из картинок это явно показывает?
@@ -38,9 +38,9 @@ void test(std::string name) {
     for (int j = 0; j < sobel_strength.rows; ++j) {
         for (int i = 0; i < sobel_strength.cols; ++i) {
             // TODO реализуйте здесь заполнение sobel_strength с учетом grad_x, grad_y:
-            //            float dx = grad_x.at<float>(j, i);
-            // ...
-            float gradient_strength = 0.0; // TODO
+            float dx = grad_x.at<float>(j, i);
+            float dy = grad_y.at<float>(j, i);
+            float gradient_strength = sqrt(dx*dx+dy*dy); // TODO
             sobel_strength.at<float>(j, i) = gradient_strength;
         }
     }
@@ -48,23 +48,27 @@ void test(std::string name) {
 
     cv::Mat hough = buildHough(sobel_strength); // TODO теперь зайдите внутрь этой функции и реализуйте построение пространства Хафа
 
-//    cv::imwrite("lesson07/resultsData/" + name + "_6_hough.png", hough);
-//    // обратите внимание что почти все пространство - яркое белое или черное, это происходит потому что яркость сильно больше чем 255
+    cv::imwrite("lesson07/resultsData/" + name + "_6_hough.png", hough);
+
 //
 //    // TODO поправьте это - найдите максимальную яркость (max_accumulated) среди всей матрицы hough и после этого отнормируйте всю картинку:
-//    // float max_accumulated = 0.0f;
-//    // for () {
-//    //     for () {
-//    //         ...
-//    //     }
-//    // }
-//    // TODO замените каждый пиксель с яркости X на яркость X*255/max_accumulated (т.е. уменьшите диапазон значений):
-//    // for () {
-//    //     for () {
-//    //         ...
-//    //     }
-//    // }
-//    // cv::imwrite("lesson07/resultsData/" + name + "_7_hough_normalized.png", hough*255.0f/max_accumulated);
+
+    float max_accumulated = hough.at<float>(0,0);;
+    for (int j = 1; j < hough.cols; ++j) {
+        for (int i = 1; i < hough.rows; ++i) {
+            if (hough.at<float>(i,j) > max_accumulated){
+                max_accumulated = hough.at<float>(i,j);
+            }
+        }
+    }
+    // TODO замените каждый пиксель с яркости X на яркость X255/max_accumulated (т.е. уменьшите диапазон значений):
+    cv::Mat hough1 = hough;
+    for (int j = 1; j < hough1.cols; ++j) {
+        for (int i = 1; i < hough1.rows; ++i) {
+            hough1.at<float>(i,j) = (hough.at<float>(i,j)*255)/max_accumulated;
+        }
+    }
+    cv::imwrite("lesson07/resultsData/" + name + "_7_hough_normalized.png", hough1);
 }
 
 
