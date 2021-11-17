@@ -45,15 +45,29 @@ void test(std::string name) {
     // Вы можете либо взять свою реализацию из прошлого задания, либо взять мою заготовку которая предложена внутри этой функции
     // и довезти ее до ума
     cv::Mat hough = buildHough(sobel_strength);
-
-    // но яркость иногда сильно больше чем 255
-    // поэтому найдем максимальную яркость (max_accumulated) среди всей матрицы hough и после этого отнормируем всю картинку:
     float max_accumulated = 0.0f;
     for (int j = 0; j < hough.rows; ++j) {
         for (int i = 0; i < hough.cols; ++i) {
             max_accumulated = std::max(max_accumulated, hough.at<float>(j, i));
         }
     }
+    cv::Mat blurredHough;
+    int blurX = 3; // ширина сглаживания - по оси X
+    int blurY = blurX * hough.rows / hough.cols;
+    if (blurY % 2 == 0) {
+        blurY = blurY + 1;
+    }
+    if (blurY < blurX) {
+        blurY = blurX;
+    }
+    cv::blur(hough, blurredHough, cv::Size(blurX, blurY)); // сглаживаем пространство Хафа (сглаженный результат в blurredHough)
+    hough = blurredHough; // заменяем сырое пространство Хафа на сглаженное
+    // и сохраянем его визуализацию на диск:
+    cv::imwrite("lesson08/resultsData/" + name + "_3_hough_blurred.png", hough*255.0f/max_accumulated);
+
+    // но яркость иногда сильно больше чем 255
+    // поэтому найдем максимальную яркость (max_accumulated) среди всей матрицы hough и после этого отнормируем всю картинку:
+
 
     // заменим каждый пиксель с яркости X на яркость X*255.0f/max_accumulated (т.е. уменьшим диапазон значений)
     cv::imwrite("lesson08/resultsData/" + name + "_2_hough_normalized.png", hough*255.0f/max_accumulated);
@@ -67,7 +81,7 @@ void test(std::string name) {
 //    double thresholdFromWinner = 0.5; // хотим оставить только те прямые у кого не менее половины голосов по сравнению с самой популярной прямой
 //    lines = filterStrongLines(lines, thresholdFromWinner);
 
-    std::cout << "Found " << lines.size() << " extremums:" << std::endl;
+    std::cout << "Found " << lines.size()+1 << " extremums:" << std::endl;
     for (int i = 0; i < lines.size(); ++i) {
         std::cout << "  Line #" << (i + 1) << " theta=" << lines[i].theta << " r=" << lines[i].r << " votes=" << lines[i].votes << std::endl;
     }
@@ -76,9 +90,10 @@ void test(std::string name) {
 
 int main() {
     try {
+        test("valve");
         test("line01");
 
-//        test("line02");
+        test("line02");
 
 //        test("line11");
 
@@ -90,7 +105,7 @@ int main() {
 
 //        test("multiline2_paper_on_table");
 
-//        test("valve");
+
 
         return 0;
     } catch (const std::exception &e) {
