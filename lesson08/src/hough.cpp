@@ -101,10 +101,7 @@ std::vector<PolarLineExtremum> findLocalExtremums(cv::Mat houghSpace)
                      }
                  }
              }
-             if () {
-                 PolarLineExtremum line(theta, r, votes);
-                 winners.push_back(line);
-             }
+
         }
     }
     return winners;
