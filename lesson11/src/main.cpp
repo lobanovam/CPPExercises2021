@@ -60,13 +60,13 @@ void test(std::string name, std::string k) {
     cv::imwrite(out_path + "/01_grey.jpg", img);
 
     // TODO 01 выполните бинарный трешолдинг картинки, прочитайте документацию по функции cv::threshold и выберите значения аргументов
-//    cv::Mat binary;
-//    cv::threshold(img, binary, ???, ???, cv::THRESH_BINARY);
-//    cv::imwrite(out_path + "/02_binary_thresholding.jpg", binary);
+    cv::Mat binary;
+    cv::threshold(img, binary, 100, 255, cv::THRESH_BINARY);
+    cv::imwrite(out_path + "/02_binary_thresholding.jpg", binary);
 
     // TODO 02 выполните адаптивный бинарный трешолдинг картинки, прочитайте документацию по cv::adaptiveThreshold
-//    cv::adaptiveThreshold(img, binary, 255, ???, cv::THRESH_BINARY, ???, ???);
-//    cv::imwrite(out_path + "/03_adaptive_thresholding.jpg", binary);
+    cv::adaptiveThreshold(img, binary, 255, 12, cv::THRESH_BINARY, 20, 50);
+    cv::imwrite(out_path + "/03_adaptive_thresholding.jpg", binary);
 
     // TODO 03 чтобы буквы не разваливались на кусочки - морфологическое расширение (эрозия)
 //    cv::Mat binary_eroded;

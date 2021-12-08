@@ -29,12 +29,12 @@ int main() {
 
         // TODO обязательно получите результат на всех картинках и убедитесь что он корректен
        test("line01");
-//        test("line03");
-//        test("line04");
-//        test("line11");
-//        test("line12");
-//        test("line13");
-//        test("line14");
+        test("line02");
+        test("line04");
+       test("line11");
+        test("line12");
+       test("line13");
+       test("line14");
 
         // TODO реализовав функцию distance продолжите эксперименты с буквам в файле mainSymbolsGenerator.cpp (для его запуска надо выбрать lesson10symbolsGenerator)
 
