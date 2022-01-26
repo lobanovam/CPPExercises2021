@@ -145,29 +145,66 @@ std::vector<cv::Point2f> Line::generatePoints(int n,
     return Line(a0, 1.0, c0);
                                               }
 
-                                              Line fitLineFromNNoisyPoints(std::vector<cv::Point2f> points)
-                                              {
+Line fitLineFromNNoisyPoints(std::vector<cv::Point2f> points) {
     // TODO 06 БОНУС - реализуйте построение прямой по многим точкам включающим нерелевантные (такое чтобы прямая как можно лучше учитывала НАИБОЛЬШЕЕ число точек)
-    return Line(0.0, -1.0, 2.0);
-                                              }
+    int n = 239;
+    int p1 = 0;
+    double r = 0.4;
+    bool b = false;
+
+    Line line(0, 0, 0);
+    Line bestline(0, 0, 0);
+
+    for (int i = 0; i < points.size(); ++i) {
+        if (!b) {
+            int randi = rand() % (points.size() - 1);
+            int randi1 = rand() % (points.size() - 1);
+            if (randi != randi1) {
+                line = fitLineFromTwoPoints(points[randi], points[randi1]);
+                bestline = line;
+                b = true;
+            }
+        }
+    }
+    for (int i = 0; i < points.size(); ++i) {
+        int randi = rand() % (points.size() - 1);
+        if (abs(line.getYFromX(points[randi].x) - points[randi].y) <= r) {
+            p1++;
+        }
+    }
+    while (n > 0) {
+        int p2 = 0;
+        int randi = rand() % (points.size() - 1);
+        int randi1 = rand() % (points.size() - 1);
+        if (randi != randi1) {
+            line = fitLineFromTwoPoints(points[randi], points[randi1]);
+        }
+        for (int i = 0; i < points.size(); ++i) {
+            if (abs(line.getYFromX(points[i].x) - points[i].y) <= r) {
+                p2++;
+            }
+        }
+        if (p2 > p1) {
+            p1 = p2;
+            Line rline(line.a, line.b, line.c);
+            bestline = rline;
+        }
+        n--;
+    }
+    return bestline;
+}
 
                                               std::vector<cv::Point2f> generateRandomPoints(int n,
                                                                                             double fromX, double toX,
                                                                                             double fromY, double toY)
                                                                                             {
     std::vector<cv::Point2f> points;
-    for (int i = 0; i < 1000; i++) {
-        int rand1 = rand()%(points.size()-1);
-        int rand2 = rand()%(points.size()-1);
-        while (rand2 = rand2) {
-            rand1 = rand()%(points.size()-1);
-            rand2 = rand()%(points.size()-1);
-        }
 
 
 
 
-    }
+
+
 
     // пусть зерно случайности порождающее последовательность координат будет однозначно опредляться по числу точек
     unsigned int randomSeed = n;
