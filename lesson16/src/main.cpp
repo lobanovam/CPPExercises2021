@@ -15,6 +15,11 @@ bool isPixelEmpty(cv::Vec3b color) {
     // TODO 1 реализуйте isPixelEmpty(color):
     // - верните true если переданный цвет - полностью черный (такие пиксели мы считаем пустыми)
     // - иначе верните false
+    if (color[0] == 0 && color[1] == 0 && color[2] == 0) {
+        return true;
+    } else {
+        return false;
+    }
     rassert(false, "325235141242153: You should do TODO 1 - implement isPixelEmpty(color)!");
     return true;
 }
@@ -72,8 +77,9 @@ void run(std::string caseName) {
 
     // Находим матрицу преобразования второй картинки в систему координат первой картинки
     cv::Mat H10 = cv::findHomography(points1, points0, cv::RANSAC, 3.0);
-    rassert(H10.size() == cv::Size(3, 3), 3482937842900059); // см. документацию https://docs.opencv.org/4.5.1/d9/d0c/group__calib3d.html#ga4abc2ece9fab9398f2e560d53c8c9780
-                                                                             // "Note that whenever an H matrix cannot be estimated, an empty one will be returned."
+    rassert(H10.size() == cv::Size(3, 3),
+            3482937842900059); // см. документацию https://docs.opencv.org/4.5.1/d9/d0c/group__calib3d.html#ga4abc2ece9fab9398f2e560d53c8c9780
+    // "Note that whenever an H matrix cannot be estimated, an empty one will be returned."
 
     // создаем папку в которую будем сохранять результаты - lesson16/resultsData/ИМЯ_НАБОРА/
     std::string resultsDir = "lesson16/resultsData/";
@@ -137,12 +143,30 @@ void run(std::string caseName) {
     // - иначе пусть результатом будет оттенок серого - пусть он тем светлее, чем больше разница между цветами пикселей
     // При этом сделайте так чтобы самый сильно отличающийся пиксель - всегда был идеально белым (255), т.е. выполните нормировку с учетом того какая максимальная разница яркости присутствует
     // Напоминание - вот так можно выставить цвет в пикселе:
-    //  panoDiff.at<cv::Vec3b>(j, i) = cv::Vec3b(blueValue, greenValue, redValue);
+    for (int i = 0; i < pano_rows; i++) {
+        for (int j = 0; j < pano_cols; j++) {
+            if (!isPixelEmpty(pano0.at<cv::Vec3b>(i, j)) && !isPixelEmpty(pano1.at<cv::Vec3b>(i, j))) {
+                cv::Vec3b color1;
+                color1[0] = abs(pano0.at<cv::Vec3b>(i, j)[0] - pano1.at<cv::Vec3b>(i, j)[0]);
+                color1[1] = abs(pano0.at<cv::Vec3b>(i, j)[1] - pano1.at<cv::Vec3b>(i, j)[1]);
+                color1[2] = abs(pano0.at<cv::Vec3b>(i, j)[2] - pano1.at<cv::Vec3b>(i, j)[2]);
+                panoDiff.at<cv::Vec3b>(i, j) = color1;
+            }
+            if (isPixelEmpty(pano0.at<cv::Vec3b>(i, j)) && isPixelEmpty(pano1.at<cv::Vec3b>(i, j))) {
+                panoDiff.at<cv::Vec3b>(i, j) = cv::Vec3b(0, 0, 0);
+            }
+            if ((!isPixelEmpty(pano0.at<cv::Vec3b>(i, j)) &&
+                isPixelEmpty(pano1.at<cv::Vec3b>(i, j))) || (isPixelEmpty(pano0.at<cv::Vec3b>(i, j)) &&
+                !isPixelEmpty(pano1.at<cv::Vec3b>(i, j)))) {
+                panoDiff.at<cv::Vec3b>(i, j) = cv::Vec3b(255, 255, 255);
+            }
+        }
+        //  panoDiff.at<cv::Vec3b>(j, i) = cv::Vec3b(blueValue, greenValue, redValue);
 
-    cv::imwrite(resultsDir + "5panoDiff.jpg", panoDiff);
+        cv::imwrite(resultsDir + "5panoDiff.jpg", panoDiff);
+    }
+
 }
-
-
 int main() {
     try {
         run("1_hanging"); // TODO 3 проанализируйте результаты по фотографиям с дрона - где различие сильное, где малое? почему так?
