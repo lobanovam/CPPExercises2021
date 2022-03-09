@@ -147,10 +147,13 @@ void run(std::string caseName) {
         for (int j = 0; j < pano_cols; j++) {
             if (!isPixelEmpty(pano0.at<cv::Vec3b>(i, j)) && !isPixelEmpty(pano1.at<cv::Vec3b>(i, j))) {
                 cv::Vec3b color1;
-                color1[0] = abs(pano0.at<cv::Vec3b>(i, j)[0] - pano1.at<cv::Vec3b>(i, j)[0]);
-                color1[1] = abs(pano0.at<cv::Vec3b>(i, j)[1] - pano1.at<cv::Vec3b>(i, j)[1]);
-                color1[2] = abs(pano0.at<cv::Vec3b>(i, j)[2] - pano1.at<cv::Vec3b>(i, j)[2]);
+                color1[0] = (abs(pano0.at<cv::Vec3b>(i, j)[0] - pano1.at<cv::Vec3b>(i, j)[0])+abs(pano0.at<cv::Vec3b>(i, j)[1] - pano1.at<cv::Vec3b>(i, j)[1])+abs(pano0.at<cv::Vec3b>(i, j)[2] - pano1.at<cv::Vec3b>(i, j)[2]))/3;
+                color1[1] = color1[0];
+                color1[2] = color1[0];
                 panoDiff.at<cv::Vec3b>(i, j) = color1;
+               // cv::Mat img;
+               // cv::cvtColor(panoDiff, img, cv::COLOR_BGR2GRAY);
+               // panoDiff = img;
             }
             if (isPixelEmpty(pano0.at<cv::Vec3b>(i, j)) && isPixelEmpty(pano1.at<cv::Vec3b>(i, j))) {
                 panoDiff.at<cv::Vec3b>(i, j) = cv::Vec3b(0, 0, 0);
