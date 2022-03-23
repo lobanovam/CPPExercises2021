@@ -2,9 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
-
 #include <libutils/rasserts.h>
-
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core/types.hpp>
@@ -31,7 +29,7 @@ cv::Point2i decodeVertex(int vertexId, int nrows, int ncolumns) {
 
     // TODO: придумайте как найти номер строки и столбика пикселю по номеру вершины (просто поймите предыдущую функцию и эта функция не будет казаться сложной)
     int row = vertexId / ncolumns;
-    int column = vertexId - row*ncolumns;
+    int column = vertexId % ncolumns;
 
     // сверим что функция симметрично сработала:
     rassert(encodeVertex(row, column, nrows, ncolumns) == vertexId, 34782974923035);
@@ -47,15 +45,24 @@ void run(int mazeNumber) {
     rassert(maze.type() == CV_8UC3, 3447928472389020);
     std::cout << "Maze resolution: " << maze.cols << "x" << maze.rows << std::endl;
 
-    int nvertices = 0; // TODO
+    int nvertices = maze.cols * maze.rows; // TODO
 
     std::vector<std::vector<Edge>> edges_by_vertex(nvertices);
-    for (int j = 0; j < maze.rows; ++j) {
-        for (int i = 0; i < maze.cols; ++i) {
+    for (int j = 0; j < maze.rows-1; ++j) {
+        for (int i = 0; i < maze.cols-1; ++i) {
             cv::Vec3b color = maze.at<cv::Vec3b>(j, i);
             unsigned char blue = color[0];
             unsigned char green = color[1];
             unsigned char red = color[2];
+
+            int v = encodeVertex(j, i, maze.rows, maze.cols);
+            int u1 =  encodeVertex(j+1, i, maze.rows, maze.cols);
+            int u2 =  encodeVertex(j, i+1, maze.rows, maze.cols);
+            int w = blue + green + red;
+            Edge edge1 = Edge(v, u1, w);
+            Edge edge2 = Edge(v, u2, w);
+            edges_by_vertex[v].push_back(edge1);
+            edges_by_vertex[v].push_back(edge2);
 
             // TODO добавьте соотвтетсвующие этому пикселю ребра
         }
@@ -81,6 +88,46 @@ void run(int mazeNumber) {
 
     std::vector<int> distances(nvertices, INF);
     // TODO СКОПИРУЙТЕ СЮДА ДЕЙКСТРУ ИЗ ПРЕДЫДУЩЕГО ИСХОДНИКА
+
+    distances[start] = 0;
+    std::vector<bool> used(nvertices, false);
+    std::vector<int> father(nvertices, -1);
+
+    while (!used[finish]) {
+        int n = -1;
+
+        for(int i = 0; i < nvertices; i++){
+            if(!used[i] && (distances[i] < INF)) n = i;
+        }
+
+        if(n == -1) break;
+
+        used[n] = true;
+        int y = n / maze.rows;
+        int x = n % maze.cols;
+        window.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 255, 0);
+        cv::imshow("Maze", window);
+        cv::waitKey(1);
+
+        for(auto edge : edges_by_vertex[n]){
+            if (distances[edge.v] > distances[n] + edge.w){
+                distances[edge.v] = distances[n] + edge.w;
+                father[edge.v] = n;
+            }
+        }
+    }
+
+    if (distances[finish] != INF) {
+        std::vector<int> path;
+        int place = finish;
+        while(place != -1){
+            path.push_back(place);
+            place = father[place];
+        }
+        for (int i = path.size()-1; i >= 0; i--) {
+            std::cout << (path[i] + 1) << " ";
+        }
+    }
 
     // TODO в момент когда вершина становится обработанной - красьте ее на картинке window в зеленый цвет и показывайте картинку:
     //    cv::Point2i p = decodeVertex(the_chosen_one, maze.rows, maze.cols);
