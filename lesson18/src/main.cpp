@@ -14,6 +14,7 @@
 #include <libutils/fast_random.h>
 
 
+
 int estimateQuality(cv::Mat mat, int j, int i, int ny, int nx);
 
 // Эта функция говорит нам правда ли пиксель отмаскирован, т.е. отмечен как "удаленный", т.е. белый
@@ -101,6 +102,40 @@ void run(int caseNumber, std::string caseName) {
                     shifts.at<cv::Vec2i>(j,i)[1] = rand_x - i;
                     image.at<cv::Vec3b>(j,i) = image.at<cv::Vec3b>(rand_y,rand_x);
                 }
+
+                int nqualleft = estimateQuality(image, j, i-1, ny, nx-1);
+                int nqualup = estimateQuality(image, j-1, i, ny-1, nx);
+                int numbers[4] {currentQuality, randomQuality, nqualleft, nqualup};
+                std::sort(numbers, numbers+4);
+                int bqual = numbers[0];
+                switch (bqual)
+                {
+                    case randomQuality:
+                        shifts.at<cv::Vec2i>(j, i)[0] = rand_y - j;
+                        shifts.at<cv::Vec2i>(j,i)[1] = rand_x - i;
+                        image.at<cv::Vec3b>(j,i) = image.at<cv::Vec3b>(rand_y,rand_x);
+                        break;
+                    case nqualleft:
+                        shifts.at<cv::Vec2i>(j, i) = shifts.at<cv::Vec2i>(j, i-1) ;
+                        image.at<cv::Vec3b>(j,i) = image.at<cv::Vec3b>(j + shifts.at<cv::Vec2b>(j,i)[0], i + shifts.at<cv::Vec2b>(j,i)[1]);
+                        break;
+
+
+
+                    case nqualup:
+                        shifts.at<cv::Vec2i>(j, i) = shifts.at<cv::Vec2i>(j-1, i) ;
+                        image.at<cv::Vec3b>(j,i) = image.at<cv::Vec3b>(j + shifts.at<cv::Vec2b>(j,i)[0], i + shifts.at<cv::Vec2b>(j,i)[1]);
+                        break;
+
+
+                    case currentQuality:
+                        break;
+
+                }
+
+
+
+
             }
         }
 
