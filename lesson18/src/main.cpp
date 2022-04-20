@@ -67,8 +67,8 @@ void run(int caseNumber, std::string caseName) {
     cv::Mat image = original;
     int k = 100;
     while (k > 0) {
-        for (int j = 2; j < image.rows-3; j++) {
-            for (int i = 2; i < image.cols - 3; i++) {
+        for (int j = 0; j < image.rows-3; j++) {
+            for (int i = 0; i < image.cols - 3; i++) {
                 if (!isPixelMasked(mask, j, i)) {
                     continue;
                 }
@@ -82,7 +82,7 @@ void run(int caseNumber, std::string caseName) {
                 while (b) {
                     rand_x = random.next(2, image.cols - 4);
                     rand_y = random.next(2, image.rows - 4);
-                    if (!isPixelMasked(image, rand_y, rand_x)) {
+                    if (!isPixelMasked(mask, rand_y, rand_x)) {
                         b = false;
                     }
                 }
@@ -145,7 +145,7 @@ int main() {
     try {
         run(1, "mic");
         // TODO протестируйте остальные случаи:
-        //        run(2, "flowers");
+        //     run(2, "flowers");
         //        run(3, "baloons");
         //        run(4, "brickwall");
         //        run(5, "old_photo");
