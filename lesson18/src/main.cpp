@@ -76,28 +76,28 @@ void run(int caseNumber, std::string caseName) {
     cv::Mat img = original.clone();
     const int PYRAMID_MIN_SIZE = 20; // до какой поры уменьшать картинку? давайте уменьшать пока картинка больше 20 пикселей
     while (img.rows > PYRAMID_MIN_SIZE &&
-           img.cols > PYRAMID_MIN_SIZE) { // или пока больше (2 * размер окна для оценки качества)
+    img.cols > PYRAMID_MIN_SIZE) { // или пока больше (2 * размер окна для оценки качества)
         pyramid.insert(pyramid.begin(),
                        img); // мы могли бы воспользоваться push_back но мы хотим вставлять картинки в начало вектора
-        cv::pyrDown(img, img); // эта функция уменьшает картинку в два раза
+                       cv::pyrDown(img, img); // эта функция уменьшает картинку в два раза
     }
 
     std::vector<cv::Mat> pyramidMask; // здесь будем хранить пронумерованные версии картинки разного разрешения
     cv::Mat img1 = mask.clone();
     while (img1.rows > PYRAMID_MIN_SIZE &&
-           img1.cols > PYRAMID_MIN_SIZE) { // или пока больше (2 * размер окна для оценки качества)
+    img1.cols > PYRAMID_MIN_SIZE) { // или пока больше (2 * размер окна для оценки качества)
         pyramidMask.insert(pyramidMask.begin(),
                            img1); // мы могли бы воспользоваться push_back но мы хотим вставлять картинки в начало вектора
-        cv::pyrDown(img1, img1); // эта функция уменьшает картинку в два раза
+                           cv::pyrDown(img1, img1); // эта функция уменьшает картинку в два раза
     }
 
     std::vector<cv::Mat> pyramidShifts; // здесь будем хранить пронумерованные версии картинки разного разрешения
     cv::Mat img2 = shifts.clone();
     while (img2.rows > PYRAMID_MIN_SIZE &&
-           img2.cols > PYRAMID_MIN_SIZE) { // или пока больше (2 * размер окна для оценки качества)
+    img2.cols > PYRAMID_MIN_SIZE) { // или пока больше (2 * размер окна для оценки качества)
         pyramidShifts.insert(pyramidShifts.begin(),
                              img2); // мы могли бы воспользоваться push_back но мы хотим вставлять картинки в начало вектора
-        cv::pyrDown(img2, img2); // эта функция уменьшает картинку в два раза
+                             cv::pyrDown(img2, img2); // эта функция уменьшает картинку в два раза
     }
 
     for (int h = 0; h < pyramid.size(); h++) {
@@ -217,7 +217,7 @@ int main() {
     try {
         run(1, "mic");
         // TODO протестируйте остальные случаи:
-       // run(2, "flowers");
+        // run(2, "flowers");
         //        run(3, "baloons");
         //        run(4, "brickwall");
         //        run(5, "old_photo");

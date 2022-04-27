@@ -31,6 +31,11 @@ void perElementProcessing(std::vector<int> &data) {
 
 // многопоточная версия
 void perElementProcessingOMP(std::vector<int> &data) {
+    #pragma omp parallel for // omp = OpenMP, parallel = запустить потоки, for = распределить по ним индексы этого цикла
+    for (int i = 0; i < data.size(); ++i) {
+        data[i] = sqrtf(std::abs(data[i] * 2.0f + 23.45f));
+    }
+
     // TODO сделайте многопоточную версию поэлементного преобразования чисел (по той же формуле что и обычная версия выше)
 }
 
@@ -42,14 +47,16 @@ void test1PerElementProcessing() {
 
     timer t; // запускаем таймер (на самом деле это секундомер, кек)
     perElementProcessing(data1);
-    std::cout << "  Naive version:  " << t.elapsed() << " s" << std::endl; // выводим в консоль замер времени (в секундах)
+    double time1 = t.elapsed();
+    std::cout << "  Naive version:  " << time1 << " s" << std::endl; // выводим в консоль замер времени (в секундах)
 
     t.restart(); // перезапускаем таймер
     perElementProcessingOMP(data2); // TODO сделайте многопоточную версию поэлементного умножения
-    std::cout << "  OpenMP version: " << t.elapsed() << " s" << std::endl;
+    double time2 = t.elapsed();
+    std::cout << "  OpenMP version: " << time2 << " s" << std::endl;
 
     // TODO рассчитайте и выведите во сколько раз быстрее отработала OpenMP версия
-    float speedup = 0.0;
+    float speedup = time1 - time2;
     std::cout << "  OpenMP speedup: x" << speedup << std::endl;
 
     // сверяем результаты (а то вдруг работает быстро не результат неправильный?)
