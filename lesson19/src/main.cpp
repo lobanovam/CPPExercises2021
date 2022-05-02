@@ -258,8 +258,36 @@ void test3Top2ElementSearch() {
 // _____________________________________________________________________________________________________________________
 // Эксперимент 4: придумайте код который позволит вам экспериментально выяснить как распределяются индексы цикла по потокам
 void test4HowWorkloadIsBalanced() {
+    std::vector<int> data = generateNElements(200);
+    int threadsN = 0;
+#pragma omp parallel
+    {
+        int threadId = -1;
+#pragma omp critical
+        {
+            threadId = threadsN;
+            std::cout << "Thread #" << threadId << " started..." << std::endl;
+            ++threadsN;
+        }
+        int threadSum = 0;
+        std::vector<int> index;
 
-    // TODO придумайте код который позволит вам экспериментально выяснить как распределяются индексы цикла по потокам
+#pragma omp for
+        for (int i = 0; i < data.size(); ++i) {
+            index.push_back(i);
+        }
+#pragma omp critical
+        {
+            std::cout<<"Thread #" << threadId << " finished! " << std::endl;
+            std::cout<<"used indexes:" << std::endl;
+            for (int i = 0; i < index.size(); i++ ) {
+                std::cout<< index[i] << ", ";
+            }
+            std::cout<< std::endl;
+
+    }
+}
+// TODO придумайте код который позволит вам экспериментально выяснить как распределяются индексы цикла по потокам
 }
 
 int main() {
