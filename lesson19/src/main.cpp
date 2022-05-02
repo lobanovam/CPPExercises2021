@@ -57,7 +57,7 @@ void test1PerElementProcessing() {
     std::cout << "  OpenMP version: " << time2 << " s" << std::endl;
 
     // TODO рассчитайте и выведите во сколько раз быстрее отработала OpenMP версия
-    float speedup = time1 - time2;
+    float speedup = time1/time2;
     std::cout << "  OpenMP speedup: x" << speedup << std::endl;
 
     // сверяем результаты (а то вдруг работает быстро не результат неправильный?)
@@ -117,28 +117,56 @@ void test2TotalSum() {
             }
         }
 
+
         // TODO Сначала посмотрите как она ведет себя в случае если тут есть состоянии гонки. Как отличается результат суммы? Почему так?
         rassert(sum == sumExpected,
                 "sum != sumExpected, sumExpected=" + std::to_string(sumExpected) + " but sum=" + std::to_string(sum));
         // TODO После этого исправьте этот код воспользовавшись критической секцией, как изменилась скорость? Почему?
         std::cout << "  OpenMP version+critical:     " << t.elapsed() << " s" << std::endl;
+
     }
 
     {
         t.restart(); // перезапускаем таймер
         sum = 0;
         // TODO сделайте эту версию параллельной (с помощью OpenMP редукции)
+#pragma omp parallel for reduction(+: sum)
+        for (int i = 0; i < data.size(); ++i) {
+            sum += data[i];
+        }
+        std::cout << "  OpenMP version+reduction:    " << t.elapsed() << " s" << std::endl;
 
         rassert(sum == sumExpected,
                 "sum != sumExpected, sumExpected=" + std::to_string(sumExpected) + " but sum=" + std::to_string(sum));
-        std::cout << "  OpenMP version+reduction:    " << t.elapsed() << " s" << std::endl;
+
     }
 
 
     {
         t.restart(); // перезапускаем таймер
-        sum = 0;
         // TODO сделайте эту версию параллельной (с помощью САМОПИСНОЙ редукции)
+        sum = 0;
+        int threadsN = 0;
+#pragma omp parallel
+        {
+//            int threadId = -1;
+//#pragma omp critical
+//            {
+//                threadId = threadsN;
+//                std::cout << "Thread #" << threadId << " started..." << std::endl;
+//                ++threadsN;
+//            }
+            long long threadSum = 0;
+#pragma omp for
+            for (int i = 0; i < data.size(); ++i) {
+                threadSum += data[i];
+            }
+#pragma omp critical
+            {
+                sum+=threadSum;
+     //           std::cout<<"Thread #" << threadId << " finished!" << std::endl;
+            }
+        }
 
         rassert(sum == sumExpected,
                 "sum != sumExpected, sumExpected=" + std::to_string(sumExpected) + " but sum=" + std::to_string(sum));
@@ -180,22 +208,57 @@ void test3Top2ElementSearch() {
 
     max1 = MIN_INT;
     max2 = MIN_INT;
+
     t.restart();
-    #pragma omp parallel
+    int threadsN = 0;
+#pragma omp parallel
     {
-        // TODO сделайте многопоточную версию (используйте самописную редукцию)
+ //       int threadId = -1;
+//#pragma omp critical
+//        {
+//            threadId = threadsN;
+//            std::cout << "Thread #" << threadId << " started..." << std::endl;
+//            ++threadsN;
+//        }
+        int threadMax1 = MIN_INT;
+        int threadMax2 = MIN_INT;
+#pragma omp for
+        for (int i = 0; i < n; ++i) {
+            int value = data[i];
+            if (value > threadMax1) { // если текущее значение больше самого большого
+                threadMax2 = threadMax1;    // то число которое раньше было самым большим - становится вторым по величине
+                threadMax1 = value;   // а текущее значение становится самым большим
+            } else {            // иначе:
+                if (value > threadMax2) { // если текущее значение больше хотя бы второго по величине
+                    threadMax2 = value;   // то заменяем его
+                }
+            }
+        }
+#pragma omp critical
+        {
+            if (threadMax1 > max1) {
+                max1 = threadMax1;
+            }
+            if (threadMax1>max2 && threadMax1 < max1) {
+                max2 = threadMax1;
+            }
+            if(threadMax2 > max2) {
+                max2 = threadMax2;
+            }
+     //       std::cout<<"Thread #" << threadId << " finished!" << std::endl;
+        }
     }
-    rassert(max1 == max1Expected && max2 == max2Expected,
+    rassert(max1== max1Expected && max2 == max2Expected,
             "Wrong! Expected: " + std::to_string(max1Expected) + " and " + std::to_string(max2Expected)
             + ", but " + std::to_string(max1) + " and " + std::to_string(max2) + " found!");
     std::cout << "  OpenMP+reduction version: " << t.elapsed() << " s" << std::endl;
-
     std::cout << "______________________________________________" << std::endl;
 }
 
 // _____________________________________________________________________________________________________________________
 // Эксперимент 4: придумайте код который позволит вам экспериментально выяснить как распределяются индексы цикла по потокам
 void test4HowWorkloadIsBalanced() {
+
     // TODO придумайте код который позволит вам экспериментально выяснить как распределяются индексы цикла по потокам
 }
 
